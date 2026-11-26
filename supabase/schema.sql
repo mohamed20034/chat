@@ -31,7 +31,7 @@ alter table public.dm_conversations enable row level security;
 drop policy if exists "DM members can read conversations" on public.dm_conversations;
 drop policy if exists "DM members can create conversations" on public.dm_conversations;
 create policy "DM members can read conversations" on public.dm_conversations for select to authenticated using(auth.uid()=user1 or auth.uid()=user2);
-create policy "DM members can create conversations" on public.dm_conversations for insert to authenticated with check(auth.uid()=user1 and user1<user2);
+create policy "DM members can create conversations" on public.dm_conversations for insert to authenticated with check(user1<user2 and auth.uid() in (user1,user2));
 grant select,insert on public.dm_conversations to authenticated;
 
 create table if not exists public.dm_messages (
