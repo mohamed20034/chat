@@ -2,6 +2,7 @@ const $ = id => document.getElementById(id);
 const CFG = 'openchat.supabase.config.v1', NAME = 'openchat.display-name.v1', ROOMS = 'openchat.private-rooms.v1';
 let db, me, channel, room = 'public', keyText = null, locked = false, stream = null, muted = false;
 let peers = new Map(), seen = new Set(), nick = (localStorage.getItem(NAME) || '').trim().slice(0,32), dmId = null, dmPeer = null;
+if (nick === 'Guest') nick = '';
 let toastTimer;
 function toastMsg(s){ $('toast').textContent=s; $('toast').classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>$('toast').classList.remove('show'),3000); }
 function config(){try{const saved=JSON.parse(localStorage.getItem(CFG)||'{}');return {url:saved.url||'https://hsoedbmcnbpzednlsbpm.supabase.co',anonKey:saved.anonKey||'sb_publishable_0_J5tX9-lUXTXbVFTcUDgw_IFoaTJfw'}}catch{return {url:'https://hsoedbmcnbpzednlsbpm.supabase.co',anonKey:'sb_publishable_0_J5tX9-lUXTXbVFTcUDgw_IFoaTJfw'}}}
