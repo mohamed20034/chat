@@ -4,7 +4,7 @@ let db, me, channel, room = 'public', keyText = null, locked = false, stream = n
 let peers = new Map(), seen = new Set(), nick = (localStorage.getItem(NAME) || 'Guest').trim().slice(0,32) || 'Guest';
 let toastTimer;
 function toastMsg(s){ $('toast').textContent=s; $('toast').classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>$('toast').classList.remove('show'),3000); }
-function config(){try{return JSON.parse(localStorage.getItem(CFG)||'{}')}catch{return {}}}
+function config(){try{const saved=JSON.parse(localStorage.getItem(CFG)||'{}');return {url:saved.url||'https://hsoedbmcnbpzednlsbpm.supabase.co',anonKey:saved.anonKey||'sb_publishable_0_J5tX9-lUXTXbVFTcUDgw_IFoaTJfw'}}catch{return {url:'https://hsoedbmcnbpzednlsbpm.supabase.co',anonKey:'sb_publishable_0_J5tX9-lUXTXbVFTcUDgw_IFoaTJfw'}}}
 function cleanUrl(s){return String(s||'').trim().replace(/\/+$/,'')}
 function updateProfile(){ $('myName').textContent=nick; $('myAvatar').textContent=nick[0].toUpperCase(); }
 function bytes64(a){let b='';a.forEach(x=>b+=String.fromCharCode(x));return btoa(b).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
