@@ -33,4 +33,37 @@
 
       <section class="voice-bar" id="voiceBar">
         <div class="voice-label"><span class="voice-wave">♫</span><div><b>Voice lounge</b><small id="voiceStatus">Join the room to talk live</small></div></div>
-        <div class="voice-actions"><div class="voice-people" id="voicePeople"></div><button class="voice-button" id?
+        <div class="voice-actions"><div class="voice-people" id="voicePeople"></div><button class="voice-button" id="joinVoiceBtn">Join voice</button><button class="voice-button muted" id="muteBtn" hidden>Mute mic</button><button class="voice-button leave" id="leaveVoiceBtn" hidden>Leave</button></div>
+      </section>
+
+      <div class="message-area" id="messageArea">
+        <div class="welcome-block" id="welcomeBlock"><div class="welcome-orb"><span>✦</span></div><div class="eyebrow">YOU FOUND YOUR PEOPLE</div><h2>Good conversations<br><em>start here.</em></h2><p>Say hello, share an idea, or jump into a voice chat.</p></div>
+        <div class="message-list" id="messageList" aria-live="polite"></div>
+      </div>
+
+      <form class="composer" id="messageForm">
+        <div class="composer-line"><textarea id="messageInput" rows="1" maxlength="4000" placeholder="Message the public lounge…" aria-label="Write a message" required></textarea><button class="send-button" type="submit" aria-label="Send message">↑</button></div>
+        <div class="composer-foot"><span><kbd>Enter</kbd> to send <span class="hint-divider">·</span> <kbd>Shift + Enter</kbd> for a new line</span><span class="secure-note" id="secureNote">Open conversation <span>•</span> be kind.</span></div>
+      </form>
+    </section>
+  </main>
+
+  <section class="setup-screen" id="setupScreen" hidden>
+    <div class="setup-card"><div class="brand-row"><div class="brand-mark">O</div><div><div class="brand-name">open<span>chat</span></div><div class="brand-caption">A SMALL SPACE TO CONNECT</div></div></div>
+      <div class="setup-tag">ONE-TIME CONNECTION SETUP</div><h1>Bring your chat<br><em>to life.</em></h1><p class="setup-intro">This site is hosted on GitHub Pages. Add your own free Supabase project to power real-time messages, private rooms and voice-call signalling.</p>
+      <label for="supabaseUrl">Supabase project URL</label><input id="supabaseUrl" type="url" placeholder="https://your-project.supabase.co" autocomplete="url">
+      <label for="supabaseKey">Supabase anon / publishable key</label><input id="supabaseKey" type="password" placeholder="Paste your public anon key" autocomplete="off">
+      <button id="saveConfigBtn" class="primary-button">Connect Open Chat <span>→</span></button>
+      <p class="setup-help">You need to run the included <b>supabase/schema.sql</b> once and enable Anonymous Sign-Ins in Supabase. <a href="https://supabase.com/dashboard" target="_blank" rel="noopener">Open Supabase dashboard ↗</a></p>
+      <p class="setup-error" id="setupError" role="alert"></p>
+    </div>
+  </section>
+
+  <dialog class="modal" id="joinModal"><form method="dialog" class="modal-card" id="joinForm"><button class="modal-close" value="cancel" aria-label="Close">×</button><div class="modal-kicker">PRIVATE SPACE</div><h2>Join a private room</h2><p>Paste the invite link shared by the room creator. Only people with the link and key can read its messages.</p><label for="inviteInput">Invite link</label><input id="inviteInput" type="text" placeholder="https://…?room=…#key=…" required><div class="modal-actions"><button class="outline-button" value="cancel">Cancel</button><button class="primary-button" id="joinPrivateConfirm" value="default">Join room →</button></div><p class="form-error" id="joinError"></p></form></dialog>
+
+  <dialog class="modal" id="settingsModal"><form method="dialog" class="modal-card" id="settingsForm"><button class="modal-close" value="cancel" aria-label="Close">×</button><div class="modal-kicker">CONNECTION</div><h2>Settings</h2><p>Update your Supabase connection or display name on this device.</p><label for="settingsUrl">Project URL</label><input id="settingsUrl" type="url" required><label for="settingsKey">Anon / publishable key</label><input id="settingsKey" type="password" required><div class="modal-actions"><button class="outline-button" value="cancel">Cancel</button><button class="primary-button" id="saveSettingsBtn" value="default">Save changes</button></div><p class="form-error" id="settingsError"></p></form></dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
