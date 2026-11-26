@@ -28,7 +28,7 @@
     <section class="chat-panel">
       <header class="topbar">
         <div class="room-heading"><div class="room-hash" id="roomHash">#</div><div><h1 id="roomTitle">Public lounge</h1><p id="roomSubtitle">A place for open conversations</p></div></div>
-        <div class="top-actions"><div class="online-pill"><i class="live-dot"></i><span id="onlineCount">1 online</span></div><button id="inviteBtn" class="outline-button" hidden>↗ <span>Invite</span></button></div>
+        <div class="top-actions"><button id="peopleBtn" class="outline-button">People</button><div class="online-pill"><i class="live-dot"></i><span id="onlineCount">1 online</span></div><button id="inviteBtn" class="outline-button" hidden>↗ <span>Invite</span></button></div>
       </header>
 
       <section class="voice-bar" id="voiceBar">
@@ -59,6 +59,8 @@
     </div>
   </section>
 
+  <dialog class="modal" id="nameModal"><form method="dialog" class="modal-card" id="nameForm"><div class="modal-kicker">WELCOME TO OPEN CHAT</div><h2>Choose your name</h2><p>This is how people will see you in public chat and private messages.</p><label for="nameInput">Display name</label><input id="nameInput" maxlength="32" placeholder="Your name" autocomplete="nickname" required><div class="modal-actions"><button class="primary-button" id="nameSaveBtn" value="default">Enter chat →</button></div><p class="form-error" id="nameError"></p></form></dialog>
+  <dialog class="modal" id="peopleModal"><form method="dialog" class="modal-card"><button class="modal-close" value="cancel" aria-label="Close">×</button><div class="modal-kicker">PEOPLE ONLINE</div><h2>Start a private chat</h2><p>Choose someone online. Only you and that person can read this conversation.</p><div id="peopleList" class="people-list">Loading people…</div></form></dialog>
   <dialog class="modal" id="joinModal"><form method="dialog" class="modal-card" id="joinForm"><button class="modal-close" value="cancel" aria-label="Close">×</button><div class="modal-kicker">PRIVATE SPACE</div><h2>Join a private room</h2><p>Paste the invite link shared by the room creator. Only people with the link and key can read its messages.</p><label for="inviteInput">Invite link</label><input id="inviteInput" type="text" placeholder="https://…?room=…#key=…" required><div class="modal-actions"><button class="outline-button" value="cancel">Cancel</button><button class="primary-button" id="joinPrivateConfirm" value="default">Join room →</button></div><p class="form-error" id="joinError"></p></form></dialog>
 
   <dialog class="modal" id="settingsModal"><form method="dialog" class="modal-card" id="settingsForm"><button class="modal-close" value="cancel" aria-label="Close">×</button><div class="modal-kicker">CONNECTION</div><h2>Settings</h2><p>Update your Supabase connection or display name on this device.</p><label for="settingsUrl">Project URL</label><input id="settingsUrl" type="url" required><label for="settingsKey">Anon / publishable key</label><input id="settingsKey" type="password" required><div class="modal-actions"><button class="outline-button" value="cancel">Cancel</button><button class="primary-button" id="saveSettingsBtn" value="default">Save changes</button></div><p class="form-error" id="settingsError"></p></form></dialog>
