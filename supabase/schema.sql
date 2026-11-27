@@ -51,3 +51,26 @@ create policy "DM members can send messages" on public.dm_messages for insert to
 grant select,insert on public.dm_messages to authenticated;
 do $$ begin alter publication supabase_realtime add table public.chat_messages; exception when duplicate_object then null; end $$;
 do $$ begin alter publication supabase_realtime add table public.dm_messages; exception when duplicate_object then null; end $$;
+-- Private media bucket. Direct-message objects are readable only by conversation members.
+insert into storage.buckets(id,name,public,file_size_limit,allowed_mime_types)
+values ('chat-media','chat-media',false,26214400,array['image/jpeg','image/png','image/webp','image/gif','video/mp4','video/webm','video/quicktime'])
+on conflict(id) do update set public=false,file_size_limit=26214400,allowed_mime_types=excluded.allowed_mime_types;
+drop policy if exists "Open Chat media read" on storage.objects;
+drop policy if exists "Open Chat media upload" on storage.objects;
+create policy "Open Chat media read" on storage.objects for select to authenticated
+using(bucket_id='chat-media' and (
+ (storage.foldername(name))[1]='public'
+ or (storage.foldername(name))[1]='room'
+ or ((storage.foldername(name))[1]='dm' and exists(
+   select 1 from public.dm_conversations c
+   where c.id::text=(storage.foldername(name))[2] and auth.uid() in(c.user1,c.user2)
+ ))
+));
+create policy "Open Chat media upload" on storage.objects for insert to authenticated
+with check(bucket_id='chat-media' and (
+ (storage.foldername(name))[1] in ('public','room')
+ or ((storage.foldername(name))[1]='dm' and exists(
+   select 1 from public.dm_conversations c
+   where c.id::text=(storage.foldername(name))[2] and auth.uid() in(c.user1,c.user2)
+ ))
+));
