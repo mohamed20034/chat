@@ -83,18 +83,26 @@ create table if not exists public.att_room_members (
 );
 alter table public.att_room_members enable row level security;
 revoke all on public.att_room_members from anon,authenticated;
+create or replace function public.has_att_access()
+returns boolean
+language sql
+security definer
+set search_path = pg_catalog, public, pg_temp
+as $function$
+ select exists(select 1 from public.att_room_members where user_id=auth.uid());
+$function$;
+revoke all on function public.has_att_access() from public;
+grant execute on function public.has_att_access() to authenticated;
+
 drop policy if exists "Open Chat read messages" on public.chat_messages;
 drop policy if exists "Open Chat send messages" on public.chat_messages;
 drop policy if exists "ATT-aware read messages" on public.chat_messages;
 drop policy if exists "ATT-aware send messages" on public.chat_messages;
 create policy "ATT-aware read messages" on public.chat_messages for select to authenticated
-using(room_id<>'att' or exists(select 1 from public.att_room_members m where m.user_id=auth.uid()));
+using(room_id<>'att' or public.has_att_access());
 create policy "ATT-aware send messages" on public.chat_messages for insert to authenticated
-with check(auth.uid()=sender_id and (room_id<>'att' or exists(select 1 from public.att_room_members m where m.user_id=auth.uid())));
+with check(auth.uid()=sender_id and (room_id<>'att' or public.has_att_access()));
 grant select,insert on public.chat_messages to authenticated;
-create or replace function public.has_att_access()
-returns boolean language sql security definer set search_path=public,pg_temp
-as $$ select exists(select 1 from public.att_room_members where user_id=auth.uid()) $$;
 create or replace function public.join_att_room(p_password text)
 returns boolean
 language plpgsql
@@ -122,12 +130,12 @@ drop policy if exists "Open Chat media upload" on storage.objects;
 create policy "Open Chat media read" on storage.objects for select to authenticated
 using(bucket_id='chat-media' and (
  (storage.foldername(name))[1]='public'
- or ((storage.foldername(name))[1]='room' and ((storage.foldername(name))[2]<>'att' or exists(select 1 from public.att_room_members m where m.user_id=auth.uid())))
+ or ((storage.foldername(name))[1]='room' and ((storage.foldername(name))[2]<>'att' or public.has_att_access()))
  or ((storage.foldername(name))[1]='dm' and exists(select 1 from public.dm_conversations c where c.id::text=(storage.foldername(name))[2] and auth.uid() in(c.user1,c.user2)))
 ));
 create policy "Open Chat media upload" on storage.objects for insert to authenticated
 with check(bucket_id='chat-media' and (
  (storage.foldername(name))[1]='public'
- or ((storage.foldername(name))[1]='room' and ((storage.foldername(name))[2]<>'att' or exists(select 1 from public.att_room_members m where m.user_id=auth.uid())))
+ or ((storage.foldername(name))[1]='room' and ((storage.foldername(name))[2]<>'att' or public.has_att_access()))
  or ((storage.foldername(name))[1]='dm' and exists(select 1 from public.dm_conversations c where c.id::text=(storage.foldername(name))[2] and auth.uid() in(c.user1,c.user2)))
 ));
