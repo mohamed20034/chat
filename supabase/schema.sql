@@ -74,3 +74,51 @@ with check(bucket_id='chat-media' and (
    where c.id::text=(storage.foldername(name))[2] and auth.uid() in(c.user1,c.user2)
  ))
 ));
+
+-- ATT password-protected room. Membership is tied to the anonymous Supabase user
+-- persisted by this browser/device; the password is checked only by server-side RPC.
+create table if not exists public.att_room_members (
+ user_id uuid primary key references auth.users(id) on delete cascade,
+ joined_at timestamptz not null default now()
+);
+alter table public.att_room_members enable row level security;
+revoke all on public.att_room_members from anon,authenticated;
+drop policy if exists "Open Chat read messages" on public.chat_messages;
+drop policy if exists "Open Chat send messages" on public.chat_messages;
+drop policy if exists "ATT-aware read messages" on public.chat_messages;
+drop policy if exists "ATT-aware send messages" on public.chat_messages;
+create policy "ATT-aware read messages" on public.chat_messages for select to authenticated
+using(room_id<>'att' or exists(select 1 from public.att_room_members m where m.user_id=auth.uid()));
+create policy "ATT-aware send messages" on public.chat_messages for insert to authenticated
+with check(auth.uid()=sender_id and (room_id<>'att' or exists(select 1 from public.att_room_members m where m.user_id=auth.uid())));
+grant select,insert on public.chat_messages to authenticated;
+create or replace function public.has_att_access()
+returns boolean language sql security definer set search_path=public,pg_temp
+as $$ select exists(select 1 from public.att_room_members where user_id=auth.uid()) $$;
+create or replace function public.join_att_room(p_password text)
+returns boolean language plpgsql security definer set search_path=public,pg_temp
+as $$
+begin
+ if auth.uid() is null or p_password is distinct from 'ATT0619' then return false; end if;
+ insert into public.att_room_members(user_id) values(auth.uid()) on conflict(user_id) do nothing;
+ return true;
+end;
+$$;
+revoke all on function public.has_att_access() from public;
+revoke all on function public.join_att_room(text) from public;
+grant execute on function public.has_att_access() to authenticated;
+grant execute on function public.join_att_room(text) to authenticated;
+drop policy if exists "Open Chat media read" on storage.objects;
+drop policy if exists "Open Chat media upload" on storage.objects;
+create policy "Open Chat media read" on storage.objects for select to authenticated
+using(bucket_id='chat-media' and (
+ (storage.foldername(name))[1]='public'
+ or ((storage.foldername(name))[1]='room' and ((storage.foldername(name))[2]<>'att' or exists(select 1 from public.att_room_members m where m.user_id=auth.uid())))
+ or ((storage.foldername(name))[1]='dm' and exists(select 1 from public.dm_conversations c where c.id::text=(storage.foldername(name))[2] and auth.uid() in(c.user1,c.user2)))
+));
+create policy "Open Chat media upload" on storage.objects for insert to authenticated
+with check(bucket_id='chat-media' and (
+ (storage.foldername(name))[1]='public'
+ or ((storage.foldername(name))[1]='room' and ((storage.foldername(name))[2]<>'att' or exists(select 1 from public.att_room_members m where m.user_id=auth.uid())))
+ or ((storage.foldername(name))[1]='dm' and exists(select 1 from public.dm_conversations c where c.id::text=(storage.foldername(name))[2] and auth.uid() in(c.user1,c.user2)))
+));
