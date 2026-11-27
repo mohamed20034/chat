@@ -96,14 +96,23 @@ create or replace function public.has_att_access()
 returns boolean language sql security definer set search_path=public,pg_temp
 as $$ select exists(select 1 from public.att_room_members where user_id=auth.uid()) $$;
 create or replace function public.join_att_room(p_password text)
-returns boolean language plpgsql security definer set search_path=extensions,public,pg_temp
-as $$
+returns boolean
+language plpgsql
+security definer
+set search_path=pg_catalog,public,pg_temp
+as $
 begin
- if auth.uid() is null or encode(digest(coalesce(p_password,'') || ':openchat-att-room-2026-11-27-9f3c1a7e','sha256'),'hex') is distinct from '2efe44ea1cafdc0e74b7d4af39aada3d8c6c37a06bde308f18d375366b94574a' then return false; end if;
- insert into public.att_room_members(user_id) values(auth.uid()) on conflict(user_id) do nothing;
+ if auth.uid() is null
+    or pg_catalog.md5(coalesce(p_password,'') || ':openchat-att-room-2026-11-27-9f3c1a7e')
+       is distinct from '5357b3af4986a7fa4d913ad6558bf7ad' then
+   return false;
+ end if;
+ insert into public.att_room_members(user_id)
+ values(auth.uid())
+ on conflict(user_id) do nothing;
  return true;
 end;
-$$;
+$;
 revoke all on function public.has_att_access() from public;
 revoke all on function public.join_att_room(text) from public;
 grant execute on function public.has_att_access() to authenticated;
