@@ -42,7 +42,7 @@
       </div>
 
       <form class="composer" id="messageForm">
-        <div class="composer-line"><textarea id="messageInput" rows="1" maxlength="4000" placeholder="Message the public lounge…" aria-label="Write a message" required></textarea><button class="send-button" type="submit" aria-label="Send message">↑</button></div>
+        <div class="composer-line"><button class="attach-button" type="button" id="attachBtn" aria-label="Attach photo, GIF or video" title="Photo, GIF or video">＋</button><input id="mediaInput" type="file" accept="image/*,video/mp4,video/webm,video/quicktime" hidden><textarea id="messageInput" rows="1" maxlength="4000" placeholder="Message the public lounge…" aria-label="Write a message"></textarea><button class="send-button" type="submit" aria-label="Send message">↑</button></div>
         <div class="composer-foot"><span><kbd>Enter</kbd> to send <span class="hint-divider">·</span> <kbd>Shift + Enter</kbd> for a new line</span><span class="secure-note" id="secureNote">Open conversation <span>•</span> be kind.</span></div>
       </form>
     </section>
