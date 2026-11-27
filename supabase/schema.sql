@@ -100,7 +100,7 @@ returns boolean
 language plpgsql
 security definer
 set search_path=pg_catalog,public,pg_temp
-as $
+as $function$
 begin
  if auth.uid() is null
     or pg_catalog.md5(coalesce(p_password,'') || ':openchat-att-room-2026-11-27-9f3c1a7e')
@@ -112,7 +112,7 @@ begin
  on conflict(user_id) do nothing;
  return true;
 end;
-$;
+$function$;
 revoke all on function public.has_att_access() from public;
 revoke all on function public.join_att_room(text) from public;
 grant execute on function public.has_att_access() to authenticated;
