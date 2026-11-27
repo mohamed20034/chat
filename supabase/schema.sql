@@ -96,7 +96,7 @@ create or replace function public.has_att_access()
 returns boolean language sql security definer set search_path=public,pg_temp
 as $$ select exists(select 1 from public.att_room_members where user_id=auth.uid()) $$;
 create or replace function public.join_att_room(p_password text)
-returns boolean language plpgsql security definer set search_path=public,pg_temp
+returns boolean language plpgsql security definer set search_path=extensions,public,pg_temp
 as $$
 begin
  if auth.uid() is null or encode(digest(coalesce(p_password,'') || ':openchat-att-room-2026-11-27-9f3c1a7e','sha256'),'hex') is distinct from '2efe44ea1cafdc0e74b7d4af39aada3d8c6c37a06bde308f18d375366b94574a' then return false; end if;
